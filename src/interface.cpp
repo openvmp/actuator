@@ -23,8 +23,18 @@ Interface::Interface(rclcpp::Node *node,
   if (actuator_prefix == "") {
     actuator_prefix = "/actuator/" + std::string(node_->get_name());
   }
-  node->declare_parameter("actuator_prefix", actuator_prefix);
-  node->get_parameter("actuator_prefix", interface_prefix_);
+
+  int index = 0;
+  std::string parameter_name;
+  do {
+    parameter_name = "actuator_prefix";
+    if (index++ != 0) {
+      parameter_name += "_" + std::to_string(index);
+    }
+  } while (node->has_parameter(parameter_name));
+
+  node->declare_parameter(parameter_name, actuator_prefix);
+  node->get_parameter(parameter_name, interface_prefix_);
 }
 
 std::string Interface::get_prefix_() {

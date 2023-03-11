@@ -18,7 +18,9 @@ namespace remote_actuator {
 std::shared_ptr<Interface> Factory::New(
     rclcpp::Node *node, const std::string &default_actuator_prefix) {
   rclcpp::Parameter is_remote;
-  node->declare_parameter("actuator_is_remote", true);
+  if (!node->has_parameter("actuator_is_remote")) {
+    node->declare_parameter("actuator_is_remote", true);
+  }
   node->get_parameter("actuator_is_remote", is_remote);
 
   if (is_remote.as_bool()) {

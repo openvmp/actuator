@@ -20,8 +20,14 @@
 
 #define REMOTE_ACTUATOR_TOPIC_POSITION "/position"
 #define REMOTE_ACTUATOR_TOPIC_VELOCITY "/velocity"
+#define REMOTE_ACTUATOR_TOPIC_POSITION_SET "/set_position"
+#define REMOTE_ACTUATOR_TOPIC_VELOCITY_SET "/set_velocity"
 #define REMOTE_ACTUATOR_SERVICE_POSITION_SET "/set_position"
 #define REMOTE_ACTUATOR_SERVICE_VELOCITY_SET "/set_velocity"
+
+#if 1
+#define REMOTE_ACTUATOR_USES_TOPICS
+#endif
 
 namespace remote_actuator {
 

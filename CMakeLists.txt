@@ -35,9 +35,25 @@ set(project_SOURCE_FILES
   src/implementation.cpp
 )
 
+set(fake_SOURCE_FILES
+  ${project_SOURCE_FILES}
+  src/fake_implementation.cpp
+  src/fake_node.cpp
+  src/fake.cpp
+)
+
 set(project_DEPENDENCIES
   rclcpp
   std_msgs
+)
+
+# Executable target
+add_executable("fake" ${fake_SOURCE_FILES})
+target_link_libraries("fake" ${rclcpp_LIBRARIES} "${cpp_typesupport_target}")
+ament_target_dependencies("fake" ${project_DEPENDENCIES})
+install(TARGETS
+  "fake"
+  DESTINATION lib/${PROJECT_NAME}
 )
 
 # Library target
