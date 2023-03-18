@@ -28,9 +28,14 @@ RemoteInterface::~RemoteInterface() {
                "Destroyed");
 }
 
-rclcpp::Client<remote_actuator::srv::PositionSet>::SharedPtr
-RemoteInterface::get_clnt_position_set_() {
-  if (!clnt_position_set_) {
+void RemoteInterface::get_clnt_position_set_() {
+  if (!
+#ifdef REMOTE_ACTUATOR_USES_TOPICS
+      publisher_position_set_
+#else
+      clnt_position_set_
+#endif
+  ) {
     auto prefix = get_prefix_();
 
     RCLCPP_DEBUG(node_->get_logger(),
@@ -44,7 +49,9 @@ RemoteInterface::get_clnt_position_set_() {
         prefix + REMOTE_ACTUATOR_TOPIC_POSITION_SET,
         rmw_qos_reliability_policy_t::RMW_QOS_POLICY_RELIABILITY_BEST_EFFORT |
             rmw_qos_history_policy_t::RMW_QOS_POLICY_HISTORY_KEEP_LAST);
-    has_position_ = publisher_position_set_->get_subscription_count() > 0;
+    has_position_ = true;  // FIXME(clairbee): fix subscription discovery at
+                           // poor performance
+    // has_position_ = publisher_position_set_->get_subscription_count() > 0;
 #else
     clnt_position_set_ =
         node_->create_client<remote_actuator::srv::PositionSet>(
@@ -53,7 +60,7 @@ RemoteInterface::get_clnt_position_set_() {
 
     if (clnt_position_set_) {
       has_position_ =
-          clnt_position_set_->wait_for_service(std::chrono::milliseconds(250));
+          clnt_position_set_->wait_for_service(std::chrono::milliseconds(1250));
     } else {
       has_position_ = false;
     }
@@ -64,12 +71,16 @@ RemoteInterface::get_clnt_position_set_() {
                    prefix.c_str());
     }
   }
-  return clnt_position_set_;
 }
 
-rclcpp::Client<remote_actuator::srv::VelocitySet>::SharedPtr
-RemoteInterface::get_clnt_velocity_set_() {
-  if (!clnt_velocity_set_) {
+void RemoteInterface::get_clnt_velocity_set_() {
+  if (!
+#ifdef REMOTE_ACTUATOR_USES_TOPICS
+      publisher_velocity_set_
+#else
+      clnt_velocity_set_
+#endif
+  ) {
     auto prefix = get_prefix_();
 
 #ifdef REMOTE_ACTUATOR_USES_TOPICS
@@ -77,7 +88,9 @@ RemoteInterface::get_clnt_velocity_set_() {
         prefix + REMOTE_ACTUATOR_TOPIC_VELOCITY_SET,
         rmw_qos_reliability_policy_t::RMW_QOS_POLICY_RELIABILITY_BEST_EFFORT |
             rmw_qos_history_policy_t::RMW_QOS_POLICY_HISTORY_KEEP_LAST);
-    has_velocity_ = publisher_velocity_set_->get_subscription_count() > 0;
+    has_velocity_ = true;  // FIXME(clairbee): fix subscription discovery at
+                           // poor performance
+    // has_velocity_ = publisher_velocity_set_->get_subscription_count() > 0;
 #else
     clnt_velocity_set_ =
         node_->create_client<remote_actuator::srv::VelocitySet>(
@@ -86,13 +99,12 @@ RemoteInterface::get_clnt_velocity_set_() {
 
     if (clnt_velocity_set_) {
       has_velocity_ =
-          clnt_velocity_set_->wait_for_service(std::chrono::milliseconds(250));
+          clnt_velocity_set_->wait_for_service(std::chrono::milliseconds(1250));
     } else {
       has_velocity_ = false;
     }
 #endif
   }
-  return clnt_velocity_set_;
 }
 
 bool RemoteInterface::has_position() {

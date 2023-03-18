@@ -44,10 +44,8 @@ class RemoteInterface final : public Interface {
   rclcpp::Client<remote_actuator::srv::VelocitySet>::SharedPtr
       clnt_velocity_set_;
 
-  rclcpp::Client<remote_actuator::srv::PositionSet>::SharedPtr
-  get_clnt_position_set_();
-  rclcpp::Client<remote_actuator::srv::VelocitySet>::SharedPtr
-  get_clnt_velocity_set_();
+  void get_clnt_position_set_();
+  void get_clnt_velocity_set_();
 };
 
 }  // namespace remote_actuator

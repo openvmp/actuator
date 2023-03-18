@@ -19,9 +19,8 @@ void Implementation::init_actuator() {
   if (has_position()) {
     topic_position_ = node_->create_publisher<std_msgs::msg::Float64>(
         prefix + REMOTE_ACTUATOR_TOPIC_POSITION,
-        // rmw_qos_reliability_policy_t::RMW_QOS_POLICY_RELIABILITY_BEST_EFFORT
-        // |
-        rmw_qos_history_policy_t::RMW_QOS_POLICY_HISTORY_KEEP_LAST);
+        rmw_qos_reliability_policy_t::RMW_QOS_POLICY_RELIABILITY_BEST_EFFORT |
+            rmw_qos_history_policy_t::RMW_QOS_POLICY_HISTORY_KEEP_LAST);
 
 #ifdef REMOTE_ACTUATOR_USES_TOPICS
     subscription_position_ = node_->create_subscription<std_msgs::msg::Float64>(
@@ -41,9 +40,8 @@ void Implementation::init_actuator() {
   if (has_velocity()) {
     topic_velocity_ = node_->create_publisher<std_msgs::msg::Float64>(
         prefix + REMOTE_ACTUATOR_TOPIC_VELOCITY,
-        // rmw_qos_reliability_policy_t::RMW_QOS_POLICY_RELIABILITY_BEST_EFFORT
-        // |
-        rmw_qos_history_policy_t::RMW_QOS_POLICY_HISTORY_KEEP_LAST);
+        rmw_qos_reliability_policy_t::RMW_QOS_POLICY_RELIABILITY_BEST_EFFORT |
+            rmw_qos_history_policy_t::RMW_QOS_POLICY_HISTORY_KEEP_LAST);
 
 #ifdef REMOTE_ACTUATOR_USES_TOPICS
     subscription_velocity_ = node_->create_subscription<std_msgs::msg::Float64>(
