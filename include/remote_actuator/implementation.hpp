@@ -39,7 +39,6 @@ class Implementation : public Interface {
   rclcpp::Publisher<std_msgs::msg::Float64>::SharedPtr topic_position_;
   rclcpp::Publisher<std_msgs::msg::Float64>::SharedPtr topic_velocity_;
 
-#ifdef REMOTE_ACTUATOR_USES_TOPICS
   // subscribers
   rclcpp::Subscription<std_msgs::msg::Float64>::SharedPtr
       subscription_position_;
@@ -48,7 +47,7 @@ class Implementation : public Interface {
 
   void sub_position_handler_(const std_msgs::msg::Float64::SharedPtr);
   void sub_velocity_handler_(const std_msgs::msg::Float64::SharedPtr);
-#else
+
   // services
   rclcpp::Service<remote_actuator::srv::PositionSet>::SharedPtr
       srv_position_set_;
@@ -61,7 +60,6 @@ class Implementation : public Interface {
   rclcpp::FutureReturnCode velocity_set_handler_(
       const std::shared_ptr<remote_actuator::srv::VelocitySet::Request> request,
       std::shared_ptr<remote_actuator::srv::VelocitySet::Response> response);
-#endif
 };
 
 }  // namespace remote_actuator

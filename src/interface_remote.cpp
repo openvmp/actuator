@@ -45,10 +45,22 @@ void RemoteInterface::get_clnt_position_set_() {
                  prefix.c_str());
 
 #ifdef REMOTE_ACTUATOR_USES_TOPICS
+    rmw_qos_profile_t rmw = {
+        .history = rmw_qos_history_policy_t::RMW_QOS_POLICY_HISTORY_KEEP_LAST,
+        .depth = 1,
+        .reliability = rmw_qos_reliability_policy_t::
+            RMW_QOS_POLICY_RELIABILITY_BEST_EFFORT,
+        .durability = RMW_QOS_POLICY_DURABILITY_TRANSIENT_LOCAL,
+        .deadline = {0, 50000000},
+        .lifespan = {0, 50000000},
+        .liveliness = RMW_QOS_POLICY_LIVELINESS_AUTOMATIC,
+        .liveliness_lease_duration = {0, 0},
+        .avoid_ros_namespace_conventions = false,
+    };
+    auto qos = rclcpp::QoS(rclcpp::QoSInitialization::from_rmw(rmw), rmw);
+
     publisher_position_set_ = node_->create_publisher<std_msgs::msg::Float64>(
-        prefix + REMOTE_ACTUATOR_TOPIC_POSITION_SET,
-        rmw_qos_reliability_policy_t::RMW_QOS_POLICY_RELIABILITY_BEST_EFFORT |
-            rmw_qos_history_policy_t::RMW_QOS_POLICY_HISTORY_KEEP_LAST);
+        prefix + REMOTE_ACTUATOR_TOPIC_POSITION_SET, qos);
     has_position_ = true;  // FIXME(clairbee): fix subscription discovery at
                            // poor performance
     // has_position_ = publisher_position_set_->get_subscription_count() > 0;
@@ -84,10 +96,22 @@ void RemoteInterface::get_clnt_velocity_set_() {
     auto prefix = get_prefix_();
 
 #ifdef REMOTE_ACTUATOR_USES_TOPICS
+    rmw_qos_profile_t rmw = {
+        .history = rmw_qos_history_policy_t::RMW_QOS_POLICY_HISTORY_KEEP_LAST,
+        .depth = 1,
+        .reliability = rmw_qos_reliability_policy_t::
+            RMW_QOS_POLICY_RELIABILITY_BEST_EFFORT,
+        .durability = RMW_QOS_POLICY_DURABILITY_TRANSIENT_LOCAL,
+        .deadline = {0, 50000000},
+        .lifespan = {0, 50000000},
+        .liveliness = RMW_QOS_POLICY_LIVELINESS_AUTOMATIC,
+        .liveliness_lease_duration = {0, 0},
+        .avoid_ros_namespace_conventions = false,
+    };
+    auto qos = rclcpp::QoS(rclcpp::QoSInitialization::from_rmw(rmw), rmw);
+
     publisher_velocity_set_ = node_->create_publisher<std_msgs::msg::Float64>(
-        prefix + REMOTE_ACTUATOR_TOPIC_VELOCITY_SET,
-        rmw_qos_reliability_policy_t::RMW_QOS_POLICY_RELIABILITY_BEST_EFFORT |
-            rmw_qos_history_policy_t::RMW_QOS_POLICY_HISTORY_KEEP_LAST);
+        prefix + REMOTE_ACTUATOR_TOPIC_VELOCITY_SET, qos);
     has_velocity_ = true;  // FIXME(clairbee): fix subscription discovery at
                            // poor performance
     // has_velocity_ = publisher_velocity_set_->get_subscription_count() > 0;
