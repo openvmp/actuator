@@ -18,7 +18,12 @@ FakeImplementation::FakeImplementation(rclcpp::Node *node)
   init_actuator();
 }
 
-void FakeImplementation::position_set_real_(double position) { (void)position; }
-void FakeImplementation::velocity_set_real_(double velocity) { (void)velocity; }
+void FakeImplementation::position_set_real_(double position) {
+  position_did_set_(position);
+}
+
+void FakeImplementation::velocity_set_real_(double velocity) {
+  velocity_did_set_(velocity);
+}
 
 }  // namespace remote_actuator

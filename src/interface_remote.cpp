@@ -23,7 +23,7 @@ RemoteInterface::RemoteInterface(rclcpp::Node *node,
 }
 
 RemoteInterface::~RemoteInterface() {
-  RCLCPP_ERROR(node_->get_logger(),
+  RCLCPP_DEBUG(node_->get_logger(),
                "remote_actuator::RemoteInterface::RemoteInterface(): "
                "Destroyed");
 }

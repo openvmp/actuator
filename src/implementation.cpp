@@ -91,15 +91,19 @@ rclcpp::FutureReturnCode Implementation::velocity_set_handler_(
 
 void Implementation::position_set(double position) {
   position_set_real_(position);
+}
 
+void Implementation::velocity_set(double velocity) {
+  velocity_set_real_(velocity);
+}
+
+void Implementation::position_did_set_(double position) {
   std_msgs::msg::Float64 msg;
   msg.data = position;
   topic_position_->publish(msg);
 }
 
-void Implementation::velocity_set(double velocity) {
-  velocity_set_real_(velocity);
-
+void Implementation::velocity_did_set_(double velocity) {
   std_msgs::msg::Float64 msg;
   msg.data = velocity;
   topic_velocity_->publish(msg);

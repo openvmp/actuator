@@ -34,6 +34,9 @@ class Implementation : public Interface {
   virtual void position_set_real_(double) = 0;
   virtual void velocity_set_real_(double) = 0;
 
+  void position_did_set_(double);
+  void velocity_did_set_(double);
+
  private:
   // topics
   rclcpp::Publisher<std_msgs::msg::Float64>::SharedPtr topic_position_;
