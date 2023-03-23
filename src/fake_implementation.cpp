@@ -19,10 +19,24 @@ FakeImplementation::FakeImplementation(rclcpp::Node *node)
 }
 
 void FakeImplementation::position_set_real_(double position) {
+  position *= 100.0;
+  if (position > 0) {
+    position = ::floor(position);
+  } else {
+    position = ::ceil(position);
+  }
+  position /= 100.0;
   position_did_set_(position);
 }
 
 void FakeImplementation::velocity_set_real_(double velocity) {
+  velocity *= 100.0;
+  if (velocity > 0) {
+    velocity = ::floor(velocity);
+  } else {
+    velocity = ::ceil(velocity);
+  }
+  velocity /= 100.0;
   velocity_did_set_(velocity);
 }
 
