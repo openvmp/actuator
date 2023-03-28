@@ -22,7 +22,8 @@ namespace remote_actuator {
 
 class Implementation : public Interface {
  public:
-  Implementation(rclcpp::Node *node);
+  Implementation(rclcpp::Node *node,
+                 const std::string &default_actuator_prefix = "");
   virtual ~Implementation() {}
 
   void init_actuator();
@@ -31,6 +32,11 @@ class Implementation : public Interface {
   virtual void position_set(double) override final;
 
  protected:
+  rclcpp::Parameter velocity_min_;
+  rclcpp::Parameter velocity_max_;
+  rclcpp::Parameter position_min_;
+  rclcpp::Parameter position_max_;
+
   virtual void position_set_real_(double) = 0;
   virtual void velocity_set_real_(double) = 0;
 

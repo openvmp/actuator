@@ -9,9 +9,37 @@
 
 #include "remote_actuator/implementation.hpp"
 
+#include <limits>
+
 namespace remote_actuator {
 
-Implementation::Implementation(rclcpp::Node *node) : Interface(node) {}
+Implementation::Implementation(rclcpp::Node *node,
+                               const std::string &default_actuator_prefix)
+    : Interface(node, default_actuator_prefix) {
+  if (!node_->has_parameter("actuator_position_min")) {
+    node_->declare_parameter("actuator_position_min",
+                             std::numeric_limits<double>::lowest());
+  }
+  node_->get_parameter("actuator_position_min", position_min_);
+
+  if (!node_->has_parameter("actuator_position_max")) {
+    node_->declare_parameter("actuator_position_max",
+                             std::numeric_limits<double>::max());
+  }
+  node_->get_parameter("actuator_position_max", position_max_);
+
+  if (!node_->has_parameter("actuator_velocity_min")) {
+    node_->declare_parameter("actuator_velocity_min",
+                             std::numeric_limits<double>::lowest());
+  }
+  node_->get_parameter("actuator_velocity_min", velocity_min_);
+
+  if (!node_->has_parameter("actuator_velocity_max")) {
+    node_->declare_parameter("actuator_velocity_max",
+                             std::numeric_limits<double>::max());
+  }
+  node_->get_parameter("actuator_velocity_max", velocity_max_);
+}
 
 void Implementation::init_actuator() {
   auto prefix = get_prefix_();
@@ -90,10 +118,24 @@ rclcpp::FutureReturnCode Implementation::velocity_set_handler_(
 }
 
 void Implementation::position_set(double position) {
+  auto max = position_max_.as_double();
+  auto min = position_min_.as_double();
+  if (position > max) {
+    position = max;
+  } else if (position < min) {
+    position = min;
+  }
   position_set_real_(position);
 }
 
 void Implementation::velocity_set(double velocity) {
+  auto max = velocity_max_.as_double();
+  auto min = velocity_min_.as_double();
+  if (velocity > max) {
+    velocity = max;
+  } else if (velocity < min) {
+    velocity = min;
+  }
   velocity_set_real_(velocity);
 }
 
