@@ -28,14 +28,25 @@ class Implementation : public Interface {
 
   void init_actuator();
 
-  virtual void velocity_set(double) override final;
   virtual void position_set(double) override final;
+  virtual void velocity_set(double) override final;
 
  protected:
-  rclcpp::Parameter velocity_min_;
-  rclcpp::Parameter velocity_max_;
-  rclcpp::Parameter position_min_;
-  rclcpp::Parameter position_max_;
+  rclcpp::Parameter param_position_min_;
+  rclcpp::Parameter param_position_max_;
+  rclcpp::Parameter param_velocity_min_;
+  rclcpp::Parameter param_velocity_max_;
+  std::shared_ptr<rclcpp::ParameterEventHandler> param_subscriber_;
+  std::shared_ptr<rclcpp::ParameterCallbackHandle> position_min_cb_handle_;
+  std::shared_ptr<rclcpp::ParameterCallbackHandle> position_max_cb_handle_;
+  std::shared_ptr<rclcpp::ParameterCallbackHandle> velocity_min_cb_handle_;
+  std::shared_ptr<rclcpp::ParameterCallbackHandle> velocity_max_cb_handle_;
+  void cb_position_minmax_(const rclcpp::Parameter &p);
+  void cb_velocity_minmax_(const rclcpp::Parameter &p);
+  double position_min_, position_max_;
+  double velocity_min_, velocity_max_;
+  double position_mod_, velocity_mod_;
+  std::mutex param_maxmin_lock_;
 
   virtual void position_set_real_(double) = 0;
   virtual void velocity_set_real_(double) = 0;

@@ -20,25 +20,68 @@ Implementation::Implementation(rclcpp::Node *node,
     node_->declare_parameter("actuator_position_min",
                              std::numeric_limits<double>::lowest());
   }
-  node_->get_parameter("actuator_position_min", position_min_);
+  node_->get_parameter("actuator_position_min", param_position_min_);
 
   if (!node_->has_parameter("actuator_position_max")) {
     node_->declare_parameter("actuator_position_max",
                              std::numeric_limits<double>::max());
   }
-  node_->get_parameter("actuator_position_max", position_max_);
+  node_->get_parameter("actuator_position_max", param_position_max_);
 
   if (!node_->has_parameter("actuator_velocity_min")) {
     node_->declare_parameter("actuator_velocity_min",
                              std::numeric_limits<double>::lowest());
   }
-  node_->get_parameter("actuator_velocity_min", velocity_min_);
+  node_->get_parameter("actuator_velocity_min", param_velocity_min_);
 
   if (!node_->has_parameter("actuator_velocity_max")) {
     node_->declare_parameter("actuator_velocity_max",
                              std::numeric_limits<double>::max());
   }
-  node_->get_parameter("actuator_velocity_max", velocity_max_);
+  node_->get_parameter("actuator_velocity_max", param_velocity_max_);
+
+  cb_position_minmax_(param_position_min_);
+  cb_velocity_minmax_(param_velocity_min_);
+
+  param_subscriber_ = std::make_shared<rclcpp::ParameterEventHandler>(node_);
+  position_min_cb_handle_ = param_subscriber_->add_parameter_callback(
+      "actuator_position_min", std::bind(&Implementation::cb_position_minmax_,
+                                         this, std::placeholders::_1));
+  position_max_cb_handle_ = param_subscriber_->add_parameter_callback(
+      "actuator_position_max", std::bind(&Implementation::cb_position_minmax_,
+                                         this, std::placeholders::_1));
+  velocity_min_cb_handle_ = param_subscriber_->add_parameter_callback(
+      "actuator_velocity_min", std::bind(&Implementation::cb_position_minmax_,
+                                         this, std::placeholders::_1));
+  velocity_max_cb_handle_ = param_subscriber_->add_parameter_callback(
+      "actuator_velocity_max", std::bind(&Implementation::cb_position_minmax_,
+                                         this, std::placeholders::_1));
+}
+
+void Implementation::cb_position_minmax_(const rclcpp::Parameter &p) {
+  (void)p;
+  std::lock_guard<std::mutex> guard(param_maxmin_lock_);
+
+  position_min_ = param_position_min_.as_double();
+  position_max_ = param_position_max_.as_double();
+
+  double position_min_mod = std::fabs(position_min_);
+  double position_max_mod = std::fabs(position_max_);
+  position_mod_ =
+      position_max_mod > position_min_mod ? position_max_mod : position_min_mod;
+}
+
+void Implementation::cb_velocity_minmax_(const rclcpp::Parameter &p) {
+  (void)p;
+  std::lock_guard<std::mutex> guard(param_maxmin_lock_);
+
+  velocity_min_ = param_velocity_min_.as_double();
+  velocity_max_ = param_velocity_max_.as_double();
+
+  double velocity_min_mod = std::fabs(velocity_min_);
+  double velocity_max_mod = std::fabs(velocity_max_);
+  velocity_mod_ =
+      velocity_max_mod > velocity_min_mod ? velocity_max_mod : velocity_min_mod;
 }
 
 void Implementation::init_actuator() {
@@ -118,24 +161,26 @@ rclcpp::FutureReturnCode Implementation::velocity_set_handler_(
 }
 
 void Implementation::position_set(double position) {
-  auto max = position_max_.as_double();
-  auto min = position_min_.as_double();
-  if (position > max) {
-    position = max;
-  } else if (position < min) {
-    position = min;
+  std::lock_guard<std::mutex> guard(param_maxmin_lock_);
+
+  if (position > position_max_) {
+    position = position_max_;
+  } else if (position < position_min_) {
+    position = position_min_;
   }
+
   position_set_real_(position);
 }
 
 void Implementation::velocity_set(double velocity) {
-  auto max = velocity_max_.as_double();
-  auto min = velocity_min_.as_double();
-  if (velocity > max) {
-    velocity = max;
-  } else if (velocity < min) {
-    velocity = min;
+  std::lock_guard<std::mutex> guard(param_maxmin_lock_);
+
+  if (velocity > velocity_max_) {
+    velocity = velocity_max_;
+  } else if (velocity < velocity_min_) {
+    velocity = velocity_min_;
   }
+
   velocity_set_real_(velocity);
 }
 
