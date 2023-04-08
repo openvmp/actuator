@@ -63,11 +63,13 @@ Implementation::Implementation(rclcpp::Node *node,
 #endif
 }
 
+#ifdef NO_PARAMETER_EVENT_HANDLER
 rcl_interfaces::msg::SetParametersResult Implementation::cb_minmax_(
     const std::vector<rclcpp::Parameter> &parameters) {
   cb_position_minmax_();
   cb_velocity_minmax_();
 }
+#endif
 
 void Implementation::cb_position_minmax_() {
   std::lock_guard<std::mutex> guard(param_maxmin_lock_);
