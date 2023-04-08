@@ -40,26 +40,36 @@ Implementation::Implementation(rclcpp::Node *node,
   }
   node_->get_parameter("actuator_velocity_max", param_velocity_max_);
 
-  cb_position_minmax_(param_position_min_);
-  cb_velocity_minmax_(param_velocity_min_);
+  cb_position_minmax_();
+  cb_velocity_minmax_();
 
+#ifdef NO_PARAMETER_EVENT_HANDLER
+  node->add_on_set_parameters_callback(
+      std::bind(&Implementation::cb_minmax_, this, std::placeholders::_1));
+#else
   param_subscriber_ = std::make_shared<rclcpp::ParameterEventHandler>(node_);
   position_min_cb_handle_ = param_subscriber_->add_parameter_callback(
-      "actuator_position_min", std::bind(&Implementation::cb_position_minmax_,
-                                         this, std::placeholders::_1));
+      "actuator_position_min",
+      std::bind(&Implementation::cb_position_minmax_, this));
   position_max_cb_handle_ = param_subscriber_->add_parameter_callback(
-      "actuator_position_max", std::bind(&Implementation::cb_position_minmax_,
-                                         this, std::placeholders::_1));
+      "actuator_position_max",
+      std::bind(&Implementation::cb_position_minmax_, this));
   velocity_min_cb_handle_ = param_subscriber_->add_parameter_callback(
-      "actuator_velocity_min", std::bind(&Implementation::cb_position_minmax_,
-                                         this, std::placeholders::_1));
+      "actuator_velocity_min",
+      std::bind(&Implementation::cb_position_minmax_, this));
   velocity_max_cb_handle_ = param_subscriber_->add_parameter_callback(
-      "actuator_velocity_max", std::bind(&Implementation::cb_position_minmax_,
-                                         this, std::placeholders::_1));
+      "actuator_velocity_max",
+      std::bind(&Implementation::cb_position_minmax_, this));
+#endif
 }
 
-void Implementation::cb_position_minmax_(const rclcpp::Parameter &p) {
-  (void)p;
+rcl_interfaces::msg::SetParametersResult Implementation::cb_minmax_(
+    const std::vector<rclcpp::Parameter> &parameters) {
+  cb_position_minmax_();
+  cb_velocity_minmax_();
+}
+
+void Implementation::cb_position_minmax_() {
   std::lock_guard<std::mutex> guard(param_maxmin_lock_);
 
   position_min_ = param_position_min_.as_double();
@@ -71,8 +81,7 @@ void Implementation::cb_position_minmax_(const rclcpp::Parameter &p) {
       position_max_mod > position_min_mod ? position_max_mod : position_min_mod;
 }
 
-void Implementation::cb_velocity_minmax_(const rclcpp::Parameter &p) {
-  (void)p;
+void Implementation::cb_velocity_minmax_() {
   std::lock_guard<std::mutex> guard(param_maxmin_lock_);
 
   velocity_min_ = param_velocity_min_.as_double();

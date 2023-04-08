@@ -36,13 +36,18 @@ class Implementation : public Interface {
   rclcpp::Parameter param_position_max_;
   rclcpp::Parameter param_velocity_min_;
   rclcpp::Parameter param_velocity_max_;
+#ifdef NO_PARAMETER_EVENT_HANDLER
+  rcl_interfaces::msg::SetParametersResult cb_minmax_(
+      const std::vector<rclcpp::Parameter> &parameters);
+#else
   std::shared_ptr<rclcpp::ParameterEventHandler> param_subscriber_;
   std::shared_ptr<rclcpp::ParameterCallbackHandle> position_min_cb_handle_;
   std::shared_ptr<rclcpp::ParameterCallbackHandle> position_max_cb_handle_;
   std::shared_ptr<rclcpp::ParameterCallbackHandle> velocity_min_cb_handle_;
   std::shared_ptr<rclcpp::ParameterCallbackHandle> velocity_max_cb_handle_;
-  void cb_position_minmax_(const rclcpp::Parameter &p);
-  void cb_velocity_minmax_(const rclcpp::Parameter &p);
+#endif
+  void cb_position_minmax_();
+  void cb_velocity_minmax_();
   double position_min_, position_max_;
   double velocity_min_, velocity_max_;
   double position_mod_, velocity_mod_;
