@@ -98,26 +98,12 @@ void Implementation::cb_velocity_minmax_() {
 void Implementation::init_actuator() {
   auto prefix = get_prefix_();
 
-  rmw_qos_profile_t rmw = {
-      .history = rmw_qos_history_policy_t::RMW_QOS_POLICY_HISTORY_KEEP_LAST,
-      .depth = 1,
-      .reliability =
-          rmw_qos_reliability_policy_t::RMW_QOS_POLICY_RELIABILITY_BEST_EFFORT,
-      .durability = RMW_QOS_POLICY_DURABILITY_VOLATILE,
-      .deadline = {0, 50000000},
-      .lifespan = {0, 50000000},
-      .liveliness = RMW_QOS_POLICY_LIVELINESS_AUTOMATIC,
-      .liveliness_lease_duration = {0, 0},
-      .avoid_ros_namespace_conventions = false,
-  };
-  auto qos = rclcpp::QoS(rclcpp::QoSInitialization::from_rmw(rmw), rmw);
-
   if (has_position()) {
     topic_position_ = node_->create_publisher<std_msgs::msg::Float64>(
-        prefix + REMOTE_ACTUATOR_TOPIC_POSITION, qos);
+        prefix + REMOTE_ACTUATOR_TOPIC_POSITION, 10);
 
     subscription_position_ = node_->create_subscription<std_msgs::msg::Float64>(
-        prefix + REMOTE_ACTUATOR_TOPIC_POSITION_SET, qos,
+        prefix + REMOTE_ACTUATOR_TOPIC_POSITION_SET, 10,
         std::bind(&Implementation::sub_position_handler_, this,
                   std::placeholders::_1));
     srv_position_set_ =
@@ -130,10 +116,10 @@ void Implementation::init_actuator() {
 
   if (has_velocity()) {
     topic_velocity_ = node_->create_publisher<std_msgs::msg::Float64>(
-        prefix + REMOTE_ACTUATOR_TOPIC_VELOCITY, qos);
+        prefix + REMOTE_ACTUATOR_TOPIC_VELOCITY, 10);
 
     subscription_velocity_ = node_->create_subscription<std_msgs::msg::Float64>(
-        prefix + REMOTE_ACTUATOR_TOPIC_VELOCITY_SET, qos,
+        prefix + REMOTE_ACTUATOR_TOPIC_VELOCITY_SET, 10,
         std::bind(&Implementation::sub_velocity_handler_, this,
                   std::placeholders::_1));
     srv_velocity_set_ =
