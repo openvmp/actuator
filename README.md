@@ -47,7 +47,7 @@ protected:
   virtual void velocity_set_real_(double) override;
 ```
 
-The users can chose one of three ways to interfact with implementations of this package:
+The users can chose one of three ways to interact with child classes of `remote_actuator::Implementation`:
 
 - Link with the driver directly to make native API calls:
 
@@ -88,7 +88,7 @@ The users can chose one of three ways to interfact with implementations of this 
   determines whether the driver is instantiated locally or if a remote
   interface is used to reach the driver instantiated elsewhere.
   Please, note, the trivial class `driver_package::Factory`
-  (similar to `remote_actuator::Factory`) has be written
+  (similar to `remote_actuator::Factory`) has to be written
   to support this use case.
 
 No matter which option is chosen,
@@ -100,6 +100,8 @@ the driver will expose the following ROS2 interfaces.
 - Minimum and maximum values for filtering input as well as to support logic in other related modules (e.g. for [PWM control](https://github.com/openvmp/actuator_pwm)):
   - `actuator_position_min` and `actuator_position_max` for position controlled actuators
   - `actuator_velocity_min` and `actuator_velocity_max` for position controlled actuators
+- `actuator_is_remote`: instructs the factory class (if any) whether
+  to instantiate the driver locally or to connect to a remote instance
 
 ### Topics
 

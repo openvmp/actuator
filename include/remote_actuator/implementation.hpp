@@ -53,7 +53,9 @@ class Implementation : public Interface {
   double position_mod_, velocity_mod_;
   std::mutex param_maxmin_lock_;
 
+  /* position_set_real_ is called to control the position */
   virtual void position_set_real_(double) = 0;
+  /* velocity_set_real_ is called to control the velocity */
   virtual void velocity_set_real_(double) = 0;
 
   void position_did_set_(double);

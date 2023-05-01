@@ -37,7 +37,9 @@ class Interface {
             const std::string &default_actuator_prefix = "");
   virtual ~Interface() {}
 
+  /* has_position must return true if the driver supports position control */
   virtual bool has_position() { return false; }
+  /* has_velocity must return true if the driver supports velocity control */
   virtual bool has_velocity() { return false; }
   virtual void position_set(double) {}
   virtual void velocity_set(double) {}
